@@ -1,135 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Vue Todo</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="app.css">
-    </head>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue Todo</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <main id="app">
+        <header>
+            <h1>{{ title }}</h1>
+        </header>
 
-    <body>
-        <main id="app">
-            <header>
-                <h1>{{ title }}</h1>
-            </header>
+        <todo-filter @filter="filter" :filter="filterBy"></todo-filter>
 
-            <div class="todo-filter">
-                <a :class="{ 'is-active': filterBy === 'all' }" @click="filterBy = 'all'">
-                    <i class="material-icons">list</i>
-                </a>
+        <todo-list :todos="filteredTodos" :remove="remove" :edit="edit"></todo-list>
 
-                <a :class="{ 'is-active': filterBy === 'completed' }" @click="filterBy = 'completed'">
-                    <i class="material-icons">check_box</i>
-                </a>
+        <todo-form @add="add"></todo-form>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="/js/todo-form.js"></script>
+    <script src="/js/todo-item.js"></script>
+    <script src="/js/todo-list.js"></script>
+    <script src="/js/todo-filter.js"></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
 
-                <a :class="{ 'is-active': filterBy === 'uncompleted' }" @click="filterBy = 'uncompleted'">
-                    <i class="material-icons">check_box_outline_blank</i>
-                </a>
-            </div>
-
-            <div class="todo-list">
-                <div class="todo-item" :class="{ 'completed': todo.completed }" v-for="(todo, i) in filteredTodos" :key="todo.id">
-                    <input class="checkbox" type="checkbox" v-model="todo.completed">
-
-                    <input type="text" class="textfield" v-if="todo.editing" v-model="todo.title">
-                    <span class="title" v-else>{{ todo.title }}</span>
-
-                    <button class="button icon" @click="remove(i)">
-                        <i class="material-icons">delete</i>
-                    </button>
-
-                    <button class="button icon" v-if="todo.editing" @click="todo.editing = false">
-                        <i class="material-icons">save</i>
-                    </button>
-
-                    <button class="button icon" v-else @click="todo.editing = true">
-                        <i class="material-icons">edit</i>
-                    </button>
-                </div>
-            </div>
-
-            <form class="todo-form" @submit.prevent="add">
-                <input class="textfield" v-model="todo">
-                <button type="submit" class="button" :disabled="!todo">Добавить</button>
-            </form>
-        </main>
-
-        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-        <script>
-            const app = new Vue({
-                el: '#app',
-                data: {
-                    title: 'Vue Todo',
-                    todo: '',
-                    filterBy: 'all',
-                    todos: [
+            data: {
+                title: 'Vue Todo',
+                filterBy: 'all',
+                todos: [
                         {
                             id: 1,
                             title: 'Познакомиться с Vue.js',
-                            completed: false,
-                            editing: false
+                            editing: false,
+                            completed: false
                         },
                         {
                             id: 2,
                             title: 'Написать приложение на Vue.js',
-                            completed: false,
-                            editing: false
+                            editing: false,
+                            completed: false
                         },
                         {
                             id: 3,
                             title: 'Записаться на следующий воркшоп по Vue.js',
-                            completed: false,
-                            editing: false
+                            editing: false,
+                            completed: false
                         }
                     ]
-                },
+            },
 
-                computed: {
-                    filteredTodos() {
-                        return this.todos.filter(todo => {
-                            switch (this.filterBy) {
-                                case 'all': return true;
-                                case 'completed': return todo.completed === true;
-                                case 'uncompleted': return todo.completed === false;
-                            }
-                        });
-                    }
-                },
-
-                methods: {
-                    add() {
-                        let todo = { id: this.todos.length + 1, title: this.todo, completed: false, editing: false };
-                        
-                        this.todos.push(todo);
-                        this.todo = '';
-                    },
-
-                    remove(i) {
-                        this.todos.splice(i, 1);
-                    },
-
-                    getFilteredTodos() {
-                        return this.todos.filter(todo => {
-                            switch (this.filterBy) {
-                                case 'all': return true;
-                                case 'completed': return todo.completed === true;
-                                case 'uncompleted': return todo.completed === false;
-                            }
-                        });
-                    }
-                },
-
-                watch: {
-                    todos() {
-                        console.log(this.todos);
-                    },
-                    filterBy(newValue, oldValue) {
-                        console.log(newValue, oldValue);
-                    }
+            computed: {
+                filteredTodos() {
+                    return this.todos.filter(todo => {
+                        switch (this.filterBy) {
+                            case 'all': return true;
+                            case 'completed': return todo.completed === true;
+                            case 'uncompleted': return todo.completed === false;
+                        }
+                    });
                 }
-            });
-        </script>
-    </body>
+            },
+
+            methods: {
+                add(title) {
+                    let todo = { id: this.todos.length + 1, title, completed: false };
+
+                    this.todos.push(todo);
+                },
+
+                remove(id) {
+                    this.todos = this.todos.filter(todo => todo.id !== id);
+                },
+
+                edit({ id, title }) {
+                    this.todos = this.todos.map(todo =>
+                        todo.id === id ? Object.assign({}, todo, { title })
+                        :
+                        todo
+                    );
+                },
+
+                filter(value) {
+                    this.filterBy = value;
+                }
+            }
+        });
+    </script>
+</body>
 </html>
